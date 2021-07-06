@@ -1,3 +1,4 @@
+import cors from 'cors';
 import path from 'path';
 import dotenv from 'dotenv';
 import express from 'express';
@@ -9,24 +10,25 @@ import { error404 } from './helpers/not-found';
 import matchesRoutes from './routes/match';
 import usersRoutes from './routes/user';
 import authRoutes from './routes/auth';
+import homeRouters from './routes/home';
 
 dotenv.config();
 
 const app = express();
+const API_URL_PREFIX = '/api/v1';
 const port = process.env.PORT || 3000;
 const mongoURI: string = process.env.mongoURI || '';
 const APP_PATH = path.join(__dirname, '..', 'dist');
 
+app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 
-app.use('/api/v1/auth', authRoutes);
-app.use('/api/v1/users', usersRoutes);
-app.use('/api/v1/matches', matchesRoutes);
-
-app.get('/', (req: express.Request, res: express.Response) => {
-  res.send('Welcome!');
-});
+// Routers
+app.use('/', homeRouters);
+app.use(`${API_URL_PREFIX}/auth`, authRoutes);
+app.use(`${API_URL_PREFIX}/users`, usersRoutes);
+app.use(`${API_URL_PREFIX}/auth`, matchesRoutes);
 
 if (process.env.NODE_ENV === 'production') {
     app.use(express.static(APP_PATH));

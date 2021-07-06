@@ -1,7 +1,6 @@
 import { Response, NextFunction, Request } from "express";
 import HttpStatusCodes from "http-status-codes";
 import { verify } from '../services/jwt';
-import { IUser } from './../models/user';
 
 const authMiddleware = function(req: Request, res: Response, next: NextFunction): any {
   // Get token from header
