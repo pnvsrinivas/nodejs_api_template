@@ -4,6 +4,7 @@ import User, { IUser } from '../models/user';
 import HttpStatusCodes from 'http-status-codes';
 import { validationResult } from "express-validator";
 import { signIn, decode } from '../services/jwt';
+import Role from '../helpers/role';
 
 const login = (req: Request, res: Response) => {
     const errors = validationResult(req);
@@ -30,7 +31,8 @@ const login = (req: Request, res: Response) => {
         if (user.hasSamePassword(password)) {
             const token = signIn({
                 userId: user.id,
-                email: user.email
+                email: user.email,
+                role: user.role
             });
             const { payload, header } = decode(token);
             return res.json({ token, email: user.email, ...payload, ...header });
@@ -65,10 +67,12 @@ const register = (req: Request, res: Response) => {
         if (existingUser) {
             return res.status(422).send({errors: [{title: 'Invalid email!', detail: 'User with this email already exist!'}]});
         }
-    
+
+        const role = Role.USER;
         const user = new User({
           email,
-          password
+          password,
+          role
         });
     
         user.save(function(err: any) {

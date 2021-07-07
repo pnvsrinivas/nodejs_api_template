@@ -1,9 +1,11 @@
 import { Router } from "express";
-import { getUsers } from "../controllers/user";
-import { authMiddleware } from "../middlewares/auth";
+import { deleteUser, getUsers } from "../controllers/user";
+import { authenticate, authorize } from "../middlewares/auth";
+import Role from './../helpers/role';
 
 const router: Router = Router();
 
-router.get("/:id", authMiddleware, getUsers);
+router.get("/:id", authenticate, getUsers);
+router.delete("/:id", authorize(Role.ADMIN, Role.USER), deleteUser);
   
 export default router;

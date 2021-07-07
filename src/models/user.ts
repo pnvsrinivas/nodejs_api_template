@@ -1,11 +1,14 @@
 import bcrypt from 'bcrypt';
 import { Document, Model, model, Schema } from 'mongoose';
-
+import Role from '../helpers/role';
 export interface IUser extends Document {
     email: string;
     password: string;
     name: string;
-    hasSamePassword(candidatePassword: string): Promise<boolean>;
+    role: string;
+    createdDate: Date;
+    // hasSamePassword(candidatePassword: string): Promise<boolean>;
+    hasSamePassword(candidatePassword: string): boolean;
 };
 
 const userSchema = new Schema<IUser>({
@@ -23,6 +26,10 @@ const userSchema = new Schema<IUser>({
         min: [4, 'Too short, min is 4 characters'],
         max: [32, 'Too long, max is 32 characters'],
         required: 'Password is required'
+    },
+    role: {
+        type: String,
+        enum: Object.values(Role)
     },
     createdDate: {
         type: Date,

@@ -2,28 +2,42 @@ import { Response, NextFunction, Request } from "express";
 import HttpStatusCodes from "http-status-codes";
 import { verify } from '../services/jwt';
 
-const authMiddleware = function(req: Request, res: Response, next: NextFunction): any {
-  // Get token from header
-  const token = req.header("x-auth-token");
+const authenticate = function(req: Request, res: Response, next: NextFunction): any {
+    
+    const token = req.header("x-auth-token"); // Get token from header
 
-  // Check if no token
-  if (!token) {
-    return res
-      .status(HttpStatusCodes.UNAUTHORIZED)
-      .json({ msg: "No token, authorization denied" });
-  }
-  // Verify token
-  try {
-    const payload = verify(token);
-    req.user = payload;
-    next();
-  } catch (err) {
-    res
-      .status(HttpStatusCodes.UNAUTHORIZED)
-      .json({ msg: "Token is not valid" });
-  }
+    if (!token) { // Check if no token
+        return res
+            .status(HttpStatusCodes.UNAUTHORIZED)
+            .json({ message: "No token, authorization denied" });
+    }
+    
+    // Verify token
+    try {
+        req.user = verify(token);
+        next();
+    } catch (err) {
+        res
+        .status(HttpStatusCodes.UNAUTHORIZED)
+        .json({ message: "Token is not valid or expired" });
+    }
 };
 
+const authorize = (...roles: string[]) => {
+    return [
+        authenticate,
+        (req: Request, res: Response, next: NextFunction) => {
+            
+            if (roles.length && !roles.includes(req.user.role)) {
+                return res.status(401).json({ message: 'Unauthorized' });
+            }
+
+            next(); // authentication and authorization successful
+        }
+    ]
+}
+
 export {
-  authMiddleware
+    authorize,
+    authenticate
 }

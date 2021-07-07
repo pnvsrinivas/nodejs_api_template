@@ -3,7 +3,7 @@ import { normalizeErrors } from '../helpers/mongoose';
 import HttpStatusCodes from 'http-status-codes';
 
 const greetings = (req: Request, res: Response) => {
-    res.send("Welcome");
+    res.send("Welcome to Namma11 Admin app !!");
 };
 
 export {
